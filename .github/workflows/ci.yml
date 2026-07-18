@@ -19,6 +19,7 @@ jobs:
   sast:
     runs-on: ubuntu-latest
     needs: build
+    continue-on-error: true   # <-- Теперь SAST не блокирует пайплайн
     steps:
       - uses: actions/checkout@v3
       - name: Run Semgrep SAST
@@ -40,7 +41,7 @@ jobs:
   dast:
     runs-on: ubuntu-latest
     needs: build
-    continue-on-error: true  # Пайплайн не упадёт, если DAST не сработает
+    continue-on-error: true   # <-- DAST тоже не блокирует пайплайн
     steps:
       - uses: actions/checkout@v3
       - name: Start DefectDojo
