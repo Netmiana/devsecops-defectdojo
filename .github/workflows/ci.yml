@@ -19,7 +19,7 @@ jobs:
   sast:
     runs-on: ubuntu-latest
     needs: build
-    continue-on-error: true   # <-- Теперь SAST не блокирует пайплайн
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v3
       - name: Run Semgrep SAST
@@ -32,7 +32,7 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v3
-      - name: Run Trivy SCA
+      - name: Run Trivy SCA (filesystem)
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
@@ -41,7 +41,7 @@ jobs:
   dast:
     runs-on: ubuntu-latest
     needs: build
-    continue-on-error: true   # <-- DAST тоже не блокирует пайплайн
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v3
       - name: Start DefectDojo
@@ -55,3 +55,48 @@ jobs:
         with:
           target: 'http://localhost:8080'
         continue-on-error: true
+
+  # ---------- Security Checks (Этап 4) ----------
+  security-checks:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run TruffleHog (секреты в коде)
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: ${{ github.sha }}
+          extra_args: --debug --only-verified
+
+      - name: Run Trivy on Dockerfile (проверка конфигурации)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: 'Dockerfile*'
+          format: 'table'
+
+  # ---------- Security Gateway (Этап 5) ----------
+  security-gate:
+    runs-on: ubuntu-latest
+    needs: [sast, sca, security-checks]  # Ждём результаты всех проверок
+    if: always()  # Выполняется даже при ошибках в предыдущих джобах
+    steps:
+      - name: Check for critical vulnerabilities
+        run: |
+          echo "=========================================="
+          echo "  Security Gateway: Analyzing results      "
+          echo "=========================================="
+          
+          # Проверяем, упал ли SAST или security-checks
+          if [ "${{ needs.sast.result }}" == "failure" ] || [ "${{ needs.security-checks.result }}" == "failure" ]; then
+            echo "❌ CRITICAL: SAST or Security Checks failed!"
+            echo "   Pipeline will be stopped to prevent release."
+            exit 1
+          else
+            echo "✅ All security checks passed successfully."
+            echo "   Pipeline can proceed to release."
+            exit 0
+          fi
