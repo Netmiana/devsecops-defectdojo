@@ -40,19 +40,19 @@
 Ниже представлены скриншоты, подтверждающие успешное выполнение всех этапов CI/CD.
 
 ### Рисунок 1 – Успешный запуск пайплайна
-![Успешный пайплайн](images/pipeline_success.png)
+![Успешный пайплайн](images/pipeline_success.PNG)
 
 ### Рисунок 2 – Логи выполнения пайплайна
-![Логи пайплайна](images/pipeline_logs.png)
+![Логи пайплайна](images/pipeline_logs.PNG)
 
 ### Рисунок 3 – Страница входа в DefectDojo
-![Вход в DefectDojo](images/defectdojo_login.png)
+![Вход в DefectDojo](images/defectdojo_login.PNG)
 
 ### Рисунок 4 – Дашборд DefectDojo
-![Дашборд DefectDojo](images/defectdojo_dashboard.png)
+![Дашборд DefectDojo](images/defectdojo_dashboard.PNG)
 
 ### Рисунок 5 – Получение пароля администратора
-![Пароль администратора](images/defectdojo_password.png)
+![Пароль администратора](images/defectdojo_password.PNG)
 
 ### Рисунок 6 – Начало сборки пайплайна
-![Начало сборки](images/pipeline_start.png)
+![Начало сборки](images/pipeline_start.PNG)
